@@ -10,7 +10,7 @@ db_file = 'blocks.sqlite'
 app = Flask(__name__)
 app.config.from_object(config.FlaskConfig)
 
-def find_block(txid):
+def find_block_by_tx_by_tx(txid):
     conn = sqlite3.connect(db_file)
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
@@ -18,23 +18,35 @@ def find_block(txid):
     block_hash = c.fetchone()
     return str(block_hash['hash'])
 
-def get_blocks(block_hash=None):
+def get_single_block(block_hash):
     conn = sqlite3.connect(db_file)
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    if block_hash is not None:
-        c.execute('SELECT * FROM blocks WHERE hash=:hash LIMIT 20', {"hash": block_hash})
-        block = dict(c.fetchone())
-        txs = get_txs(block['hash'])
-        block['tx'] = txs
-        return block
-    else:
+    c.execute('SELECT * FROM blocks WHERE hash=:hash', {"hash": block_hash})
+    block = dict(c.fetchone())
+    txs = get_txs(block['hash'])
+    block['tx'] = txs
+    return block
+
+
+def get_blocks(query):
+    print "in get blocks"
+    if query.get('height'):
+        height = query['height']
+    conn = sqlite3.connect(db_file)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
+    if height == 'top':
         c.execute('SELECT hash, height, size, time FROM blocks ORDER by height DESC LIMIT 20')
-        blocks = [dict(block) for block in c.fetchall()]
-        for block in blocks:
-            txs = get_txs(block['hash'])
-            block['tx'] = txs
-        return blocks
+    else:
+        bottom = height - 20
+        c.execute('SELECT hash, height, size, time FROM blocks WHERE height<=:top AND height>:bottom ORDER by height DESC', {"top":height, "bottom":bottom})
+    # return retrieved blocks as a dict, with transactions
+    blocks = [dict(block) for block in c.fetchall()]
+    for block in blocks:
+        txs = get_txs(block['hash'])
+        block['txs'] = txs
+    return blocks
 
 def get_txs(block_hash):
     conn = sqlite3.connect(db_file)
@@ -57,29 +69,38 @@ def validate_input(search_string):
 def _jinja2_filter_timestamp(unix_epoch):
     return time.ctime(unix_epoch)
 
-@app.route('/')
-def index():
-    blocks = cache.get('blocks')
+@app.route('/', defaults={'height': 'top'})
+@app.route('/height/<int:height>')
+def index(height='top'):
+    query = {"height":height}
+    try:
+        blocks = get_blocks(query)
+        # blocks = cache.get('blocks')
+    except:
+        pass
     return render_template('blocks.html', blocks = blocks)
 
 @app.route('/block', methods = ['GET', 'POST'])
 def show_block():
-    search_string = validate_input(request.values.get('search').strip().lower())
-    if search_string is None:
+    print 'search: ', request.values.get('search')
+    block_hash_search = validate_input(request.values.get('search').strip().lower())
+    if block_hash_search is None:
+        print 'blockhash search none'
         return ('', 204)
     try:
-        block = get_blocks(search_string)
+        block = get_single_block(block_hash_search)
         return render_template('block.html', block = block)
     except:
         pass
     try:
-        block_hash = find_block(search_string)
-        block = get_blocks(block_hash)
+        block_hash = find_block_by_tx(search_string)
+        block = get_single_block(block_hash)
         return render_template('block.html', block = block)
     except:
+        print 'except'
         return ('', 204)
 
 if __name__ == '__main__':
     cache = SimpleCache()
-    cache.set('blocks', get_blocks(), timeout=3600)
+    cache.set('blocks', get_blocks({"height":'top'}), timeout=3600)
     app.run(host='0.0.0.0', port=int('8201'), debug=True)

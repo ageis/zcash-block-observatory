@@ -10,3 +10,26 @@ nav {
 .navbar-default .navbar-nav > li > a {
   color: white !important;
 }
+
+
+.footer {
+  background-color: #221F53;
+  margin-top: 3em;
+}
+
+.footer ul li {
+  list-style: none;
+  padding: 2px;
+}
+.footer .fa {
+  padding-right: 5px;
+}
+.footer .stats {
+  padding: 1em;
+  margin-top: 1em;
+  color: white !important;
+}
+.footer > .container {
+  padding-right: 15px;
+  padding-left: 15px;
+}
