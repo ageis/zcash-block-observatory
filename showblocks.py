@@ -23,13 +23,13 @@ def get_blocks(block_hash=None):
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
     if block_hash is not None:
-        c.execute('SELECT * FROM blocks WHERE hash=:hash', {"hash": block_hash})
+        c.execute('SELECT * FROM blocks WHERE hash=:hash LIMIT 20', {"hash": block_hash})
         block = dict(c.fetchone())
         txs = get_txs(block['hash'])
         block['tx'] = txs
         return block
     else:
-        c.execute('SELECT hash, height, size, time FROM blocks ORDER by height DESC')
+        c.execute('SELECT hash, height, size, time FROM blocks ORDER by height DESC LIMIT 20')
         blocks = [dict(block) for block in c.fetchall()]
         for block in blocks:
             txs = get_txs(block['hash'])
@@ -47,10 +47,11 @@ def get_txs(block_hash):
 def validate_input(search_string):
     if len(search_string) != 64:
         return None
-    if re.fullmatch(r"[A-Fa-f0-9]{64}", search_string) is None:
-        return None
-    else:
+    m = re.match(r"[A-Fa-f0-9]{64}", search_string)
+    if m and m.span()[1] == len(search_string):
         return search_string
+    else:
+        return None
 
 @app.template_filter('timestamp')
 def _jinja2_filter_timestamp(unix_epoch):
@@ -81,4 +82,4 @@ def show_block():
 if __name__ == '__main__':
     cache = SimpleCache()
     cache.set('blocks', get_blocks(), timeout=3600)
-    app.run(host='0.0.0.0', port=int('8201'))
+    app.run(host='0.0.0.0', port=int('8201'), debug=True)

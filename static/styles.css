@@ -1,7 +1,12 @@
-table {
-    border-collapse: collapse;
+nav {
+  background-color: #221F53 !important;
+  padding: 0.5em 0;
 }
 
-table, th, td {
-    border: 1px solid black;
+.navbar-brand {
+  color: white !important;
+}
+
+.navbar-default .navbar-nav > li > a {
+  color: white !important;
 }

@@ -1,13 +1,13 @@
 {% extends "base.html" %}
   {% block content %}
-    <table class="table">
-      <tr>
-        <th>hash</th>
-        <td>{{ block['hash'] }}</td>
-      </tr>
+    <table class="table table-striped">
       <tr>
         <th>height</th>
         <td>{{ block['height'] | int }}</td>
+      </tr>
+      <tr>
+        <th>hash</th>
+        <td>{{ block['hash'] }}</td>
       </tr>
       <tr>
         <th>confirmations</th>

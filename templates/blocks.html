@@ -1,22 +1,21 @@
 {% extends "base.html" %}
   {% block content %}
-    <table class="table">
+    <h4>Recently Observed Blocks</h4>
+    <table class="table table-striped table-responsive">
       <tr>
-        <th>hash</th>
-        <th>height</th>
-        <th>size</th>
-        <th>txs</th>
-        <th>time</th>
+        <th>Height</th>
+        <th>Block Hash</th>
+        <th>Size (bytes)</th>
+        <th>Transactions</th>
+        <th>Arrival Time</th>
       </tr>
       {% for block in blocks %}
       <tr>
-        <td><a href="/block?search={{ block['hash'] }}" style="text-decoration: none;">{{ block['hash'] }}</a></td>
         <td>{{ block['height'] | int }}</td>
+        <td><a href="/block?search={{ block['hash'] }}" style="text-decoration: none;">{{ block['hash'] }}</a></td>
         <td>{{ block['size'] | int }}</td>
         <td>
-        {% for tx in block['tx'] %}
-        {{ tx['tx'] }}<br>
-        {% endfor %}
+        {{ block['tx']|length }}
         </td>
         <td>{{ block['time'] | timestamp }}</td>
       </tr>
