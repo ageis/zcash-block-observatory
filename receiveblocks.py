@@ -33,7 +33,7 @@ def createdb():
         anchor TEXT(100) NOT NULL, \
         previousblockhash TEXT(100), \
         nextblockhash TEXT(100), \
-        arrivaltime REAL NOT NULL, \
+        arrivaltime REAL, \
         PRIMARY KEY (hash))')
     conn.commit()
     conn.close()
@@ -47,7 +47,7 @@ def storeblock(block):
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (block['hash'], block['confirmations'], \
             block['size'], block['height'], block['version'], block['merkleroot'], block['time'], \
             block['nonce'], block['bits'], block['difficulty'], block['chainwork'], block['anchor'], \
-            block['previousblockhash'], block.get('nextblockhash', None), block['arrivaltime']))
+            block.get('previousblockhash', None), block.get('nextblockhash', None), block.get('arrivaltime', None)))
     except sqlite3.Error as err:
         print('ERROR:', err.message)
     for tx in block['tx']:
