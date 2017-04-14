@@ -28,18 +28,19 @@ def get_single_block(block_hash):
     block['tx'] = txs
     return block
 
-def get_blocks(query):
+def get_blocks(query={}):
     print "in get blocks"
     if query.get('height'):
         height = query['height']
     conn = sqlite3.connect(db_file)
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    if height == 'top':
-        c.execute('SELECT hash, height, size, time FROM blocks ORDER by height DESC LIMIT 20')
-    else:
-        bottom = height - 20
-        c.execute('SELECT hash, height, size, time FROM blocks WHERE height<=:top AND height>:bottom ORDER by height DESC', {"top":height, "bottom":bottom})
+    # if height == 'top':
+    #     c.execute('SELECT hash, height, size, time FROM blocks ORDER by height DESC LIMIT 20')
+    # else:
+    #     bottom = height - 20
+    #     c.execute('SELECT hash, height, size, time FROM blocks WHERE height<=:top AND height>:bottom ORDER by height DESC', {"top":height, "bottom":bottom})
+    c.execute('SELECT hash, height, size, time FROM blocks ORDER by height DESC LIMIT 200')
     # return retrieved blocks as a dict, with transactions
     blocks = [dict(block) for block in c.fetchall()]
     for block in blocks:
@@ -68,8 +69,9 @@ def validate_input(search_string):
 def _jinja2_filter_timestamp(unix_epoch):
     return time.ctime(unix_epoch)
 
-@app.route('/', defaults={'height': 'top'})
-@app.route('/height/<int:height>')
+# @app.route('/', defaults={'height': 'top'})
+# @app.route('/height/<int:height>')
+@app.route('/')
 def index(height='top'):
     query = {"height":height}
     try:
@@ -101,5 +103,5 @@ def show_block():
 
 if __name__ == '__main__':
     cache = SimpleCache()
-    cache.set('blocks', get_blocks({"height":'top'}), timeout=3600)
+    cache.set('blocks', get_blocks(), timeout=3600)
     app.run(host='0.0.0.0', port=int('8201'), debug=True)

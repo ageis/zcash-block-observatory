@@ -38,3 +38,10 @@ nav {
   height: 14px;
   padding-left: 5px;
 }
+
+a.paginate_button {
+  padding: 5px;
+}
+#recentBlocks_paginate.dataTables_paginate {
+  padding-top:1em;
+}

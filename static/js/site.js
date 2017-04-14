@@ -1,10 +1,9 @@
 $(document).ready(function() {
   $('#recentBlocks').DataTable({
-    "paging": false,
     "info": false,
     "order": [[ 0, "desc" ]],
     "oLanguage": {
-      "sSearch": "Filter blocks on this page by search criteria:"
+      "sSearch": "Filter blocks on page by search criteria:"
     }
   });
 
