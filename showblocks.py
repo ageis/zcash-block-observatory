@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-from flask import Flask, render_template, request, session
-import config, json, os, re, sqlite3, sys, time
-from werkzeug.contrib.cache import SimpleCache
+from flask import Flask, render_template, request
+import ast, config, re, sqlite3, time
 
 db_file = 'blocks.sqlite'
 app = Flask(__name__)
@@ -22,7 +21,6 @@ def find_block_by_tx(txid):
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
     c.execute('SELECT hash FROM tx WHERE tx=:txid', {"txid": txid})
-    #c.execute('SELECT hash FROM blocks WHERE instr(tx, :txid)', {"txid": txid})
     block_hash = c.fetchone()
     return str(block_hash['hash'])
 
@@ -40,7 +38,8 @@ def get_single_block(block_hash):
     c = conn.cursor()
     c.execute('SELECT * FROM blocks WHERE hash=:hash', {"hash": block_hash})
     block = c.fetchone()
-    return dict(block)
+    transactions = ast.literal_eval(block['tx'])
+    return dict(block), list(transactions)
 
 def get_blocks():
     conn = sqlite3.connect(db_file)
@@ -74,7 +73,6 @@ def _jinja2_filter_timestamp(unix_epoch):
 def index():
     try:
         blocks = get_blocks()
-        # blocks = cache.get('blocks')
     except:
         pass
     return render_template('blocks.html', blocks = blocks)
@@ -88,29 +86,30 @@ def show_block():
         return ('', 204)
     # find block by hash
     try:
-        block = get_single_block(search_string)
-        return render_template('block.html', block = block)
-    except:
+        block, transactions = get_single_block(search_string)
+        return render_template('block.html', block = block, transactions = transactions)
+    except Exception as e:
+        print(e)
         print('Error: Failed to locate block by hash.')
         pass
     # find block by transaction ID
     try:
         block_hash = find_block_by_tx(search_string)
-        block = get_single_block(block_hash)
-        return render_template('block.html', block = block)
-    except:
+        block, transactions = get_single_block(block_hash)
+        return render_template('block.html', block = block, transactions = transactions)
+    except Exception as e:
+        print(e)
         print('Error: Failed to locate block by txid.')
         pass
     # find block by height
     try:
         block_hash = find_block_by_height(search_string)
-        block = get_single_block(block_hash)
-        return render_template('block.html', block = block)
-    except:
+        block, transactions = get_single_block(block_hash)
+        return render_template('block.html', block = block, transactions = transactions)
+    except Exception as e:
+        print(e)
         print('Error: Failed to locate block by height.')
         return ('', 204)
 
 if __name__ == '__main__':
-    # cache = SimpleCache()
-    # cache.set('blocks', get_blocks(), timeout=3600)
     app.run(host='0.0.0.0', port=int('8201'), debug=True)
