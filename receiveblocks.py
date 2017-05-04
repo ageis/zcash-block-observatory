@@ -13,13 +13,13 @@ def createdb():
     c = conn.cursor()
 
     c.execute('CREATE TABLE IF NOT EXISTS tx( \
-        hash TEXT(100) NOT NULL, \
-        tx TEXT(100) NOT NULL, \
+        hash TEXT NOT NULL, \
+        tx TEXT NOT NULL, \
         FOREIGN KEY (hash) REFERENCES blocks(hash) \
         PRIMARY KEY(tx))')
 
     c.execute('CREATE TABLE IF NOT EXISTS blocks( \
-        hash TEXT(100) NOT NULL, \
+        hash TEXT NOT NULL, \
         confirmations INTEGER, \
         size INTEGER NOT NULL, \
         height INTEGER NOT NULL, \
@@ -28,13 +28,13 @@ def createdb():
         tx BLOB, \
         txs INTEGER, \
         time REAL NOT NULL, \
-        nonce TEXT(100) NOT NULL, \
-        bits TEXT(50) NOT NULL, \
-        difficulty TEXT(50) NOT NULL, \
-        chainwork TEXT(100) NOT NULL, \
-        anchor TEXT(100) NOT NULL, \
-        previousblockhash TEXT(100), \
-        nextblockhash TEXT(100), \
+        nonce TEXT NOT NULL, \
+        bits TEXT NOT NULL, \
+        difficulty TEXT NOT NULL, \
+        chainwork TEXT NOT NULL, \
+        anchor TEXT NOT NULL, \
+        previousblockhash TEXT, \
+        nextblockhash TEXT, \
         arrivaltime REAL, \
         PRIMARY KEY (hash))')
     conn.execute('VACUUM')
