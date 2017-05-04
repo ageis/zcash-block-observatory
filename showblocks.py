@@ -99,6 +99,7 @@ def show_block():
         block = get_single_block(search_string)
         return render_template('block.html', block = block)
     except:
+        print 'failed to find block by hash'
         pass
     # find block by transaction ID
     try:
@@ -106,6 +107,7 @@ def show_block():
         block = get_single_block(block_hash)
         return render_template('block.html', block = block)
     except:
+        print 'failed to find block by txid'
         pass
     # find block by height
     try:
@@ -113,7 +115,7 @@ def show_block():
         block = get_single_block(block_hash)
         return render_template('block.html', block = block)
     except:
-        print 'except'
+        print 'failed to find block by number'
         return ('', 204)
 
 if __name__ == '__main__':
