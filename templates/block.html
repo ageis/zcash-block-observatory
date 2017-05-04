@@ -28,7 +28,7 @@
       <tr>
         <th>txs</th>
         <td>
-        {% for tx in block['tx'] %}
+        {% for tx in transactions %}
         {{ tx }}<br>
         {% endfor %}
         </td>
@@ -63,7 +63,7 @@
       </tr>
       <tr>
         <th>nextblockhash</th>
-        {% if str(nextblockhash) == 'None' %}
+        {% if block['nextblockhash'] | string() == 'None' %}
         <td>None</td>
         {% else %}
         <td><a href="/block?search={{ block['nextblockhash'] }}" style="text-decoration: none;">{{ block['nextblockhash'] }}</a></td>
