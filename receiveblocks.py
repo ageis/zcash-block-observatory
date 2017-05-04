@@ -12,6 +12,7 @@ app.config.from_object(config.FlaskConfig)
 def createdb():
     conn = sqlite3.connect(db_file)
     c = conn.cursor()
+
     c.execute('CREATE TABLE IF NOT EXISTS tx( \
         hash TEXT(100) NOT NULL, \
         tx TEXT(100) NOT NULL, \
@@ -20,11 +21,13 @@ def createdb():
 
     c.execute('CREATE TABLE IF NOT EXISTS blocks( \
         hash TEXT(100) NOT NULL, \
-        confirmations REAL NOT NULL, \
-        size REAL NOT NULL, \
-        height REAL NOT NULL, \
-        version REAL NOT NULL, \
+        confirmations INTEGER, \
+        size INTEGER NOT NULL, \
+        height INTEGER NOT NULL, \
+        version REAL, \
         merkleroot TEXT(100) NOT NULL, \
+        tx BLOB, \
+        txs INTEGER, \
         time REAL NOT NULL, \
         nonce TEXT(100) NOT NULL, \
         bits TEXT(50) NOT NULL, \
@@ -43,10 +46,10 @@ def storeblock(block):
     conn = sqlite3.connect(db_file)
     c = conn.cursor()
     try:
-        c.execute('INSERT INTO blocks (hash, confirmations, size, height, version, merkleroot, \
+        c.execute('INSERT INTO blocks (hash, confirmations, size, height, version, merkleroot, tx, txs, \
             time, nonce, bits, difficulty, chainwork, anchor, previousblockhash, nextblockhash, arrivaltime) \
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (block['hash'], block['confirmations'], \
-            block['size'], block['height'], block['version'], block['merkleroot'], block['time'], \
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (block['hash'], block['confirmations'], \
+            block['size'], block['height'], block['version'], block['merkleroot'], json.dumps(block['tx']), len(block['tx']), block['time'], \
             block['nonce'], block['bits'], block['difficulty'], block['chainwork'], block['anchor'], \
             block.get('previousblockhash', None), block.get('nextblockhash', None), block.get('arrivaltime', None)))
         try:
