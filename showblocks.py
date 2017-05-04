@@ -82,17 +82,17 @@ def index():
 
 @app.route('/block', methods = ['GET', 'POST'])
 def show_block():
-    print 'search: ', request.values.get('search')
+    print('Searching: ' + request.values.get('search'))
     search_string = validate_input(request.values.get('search').strip().lower())
     if search_string is None:
-        print 'blockhash search none'
+        print('Error: Search string was invalid.')
         return ('', 204)
     # find block by hash
     try:
         block = get_single_block(search_string)
         return render_template('block.html', block = block)
     except:
-        print 'failed to find block by hash'
+        print('Error: Failed to locate block by hash.')
         pass
     # find block by transaction ID
     try:
@@ -100,7 +100,7 @@ def show_block():
         block = get_single_block(block_hash)
         return render_template('block.html', block = block)
     except:
-        print 'failed to find block by txid'
+        print('Error: Failed to locate block by txid.')
         pass
     # find block by height
     try:
@@ -108,7 +108,7 @@ def show_block():
         block = get_single_block(block_hash)
         return render_template('block.html', block = block)
     except:
-        print 'failed to find block by number'
+        print('Error: Failed to locate block by its number.')
         return ('', 204)
 
 if __name__ == '__main__':
