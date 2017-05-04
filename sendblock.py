@@ -1,11 +1,19 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+"""
+Sends incoming blocks from a locally-running zcashd to a remote collector.
+"""
+import json
+import time
+import subprocess
+import sys
+import requests
 
-import json, os, requests, subprocess, sys, time
-block_observatory_url = 'http://127.0.0.1:8200/'
+from config import SendBlocksConfig
+config = SendBlocksConfig
 
 def zcash(block_hash):
-    zcash = subprocess.Popen(['/usr/bin/zcash-cli', 'getblock', block_hash], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    zcash = subprocess.Popen([config.ZCASH_CLI_PATH, 'getblock', block_hash], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     output = zcash.communicate()[0]
     return json.loads(output)
 
@@ -16,7 +24,7 @@ def main():
     block['arrivaltime'] = timestamp
     session = requests.session()
     session.headers.update({'Content-Type': 'application/json'})
-    r = session.post(block_observatory_url, json=block)
+    r = session.post(config['BLOCK_OBSERVATORY_URL'], json=block)
     r.raise_for_status()
 
 if __name__ == '__main__':

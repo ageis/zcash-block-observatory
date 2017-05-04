@@ -1,15 +1,20 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
-
+"""
+This is a Python Flask web application for displaying Zcash blocks.
+"""
+import ast
+import re
+import sqlite3
+import time
 from flask import Flask, render_template, request
-import ast, config, re, sqlite3, time
 
-db_file = 'blocks.sqlite'
+import config
 app = Flask(__name__)
-app.config.from_object(config.FlaskConfig)
+app.config.from_object(config.ShowBlocksConfig)
 
 def latest_block():
-    conn = sqlite3.connect(db_file)
+    conn = sqlite3.connect(app.config['DB_FILE'])
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
     c.execute('SELECT MAX(height) FROM blocks')
@@ -17,7 +22,7 @@ def latest_block():
     return int(total_height[0])
 
 def find_block_by_tx(txid):
-    conn = sqlite3.connect(db_file)
+    conn = sqlite3.connect(app.config['DB_FILE'])
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
     c.execute('SELECT hash FROM tx WHERE tx=:txid', {"txid": txid})
@@ -25,7 +30,7 @@ def find_block_by_tx(txid):
     return str(block_hash['hash'])
 
 def find_block_by_height(block_height):
-    conn = sqlite3.connect(db_file)
+    conn = sqlite3.connect(app.config['DB_FILE'])
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
     c.execute('SELECT hash FROM blocks WHERE height=:height', {"height": block_height})
@@ -33,7 +38,7 @@ def find_block_by_height(block_height):
     return str(block_hash['hash'])
 
 def get_single_block(block_hash):
-    conn = sqlite3.connect(db_file)
+    conn = sqlite3.connect(app.config['DB_FILE'])
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
     c.execute('SELECT * FROM blocks WHERE hash=:hash', {"hash": block_hash})
@@ -42,7 +47,7 @@ def get_single_block(block_hash):
     return dict(block), list(transactions)
 
 def get_blocks():
-    conn = sqlite3.connect(db_file)
+    conn = sqlite3.connect(app.config['DB_FILE'])
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
     c.execute('SELECT hash, height, size, txs, time FROM blocks ORDER by height DESC LIMIT 200')
@@ -62,8 +67,7 @@ def validate_input(search_string):
     if m and m.span()[1] == len(search_string):
         print('Search matches hexademical format of a block hash or txid.')
         return search_string
-    else:
-        return None
+    return None
 
 @app.template_filter('timestamp')
 def _jinja2_filter_timestamp(unix_epoch):
@@ -73,11 +77,13 @@ def _jinja2_filter_timestamp(unix_epoch):
 def index():
     try:
         blocks = get_blocks()
-    except:
+    except Exception as e:
+        print('Error retreving blocks from the local database.')
+        print(e)
         pass
-    return render_template('blocks.html', blocks = blocks)
+    return render_template('blocks.html', blocks=blocks)
 
-@app.route('/block', methods = ['GET', 'POST'])
+@app.route('/block', methods=['GET', 'POST'])
 def show_block():
     print('Searching: ' + request.values.get('search'))
     search_string = validate_input(request.values.get('search').strip().lower())
@@ -87,7 +93,7 @@ def show_block():
     # find block by hash
     try:
         block, transactions = get_single_block(search_string)
-        return render_template('block.html', block = block, transactions = transactions)
+        return render_template('block.html', block=block, transactions=transactions)
     except Exception as e:
         print(e)
         print('Error: Failed to locate block by hash.')
@@ -96,7 +102,7 @@ def show_block():
     try:
         block_hash = find_block_by_tx(search_string)
         block, transactions = get_single_block(block_hash)
-        return render_template('block.html', block = block, transactions = transactions)
+        return render_template('block.html', block=block, transactions=transactions)
     except Exception as e:
         print(e)
         print('Error: Failed to locate block by txid.')
@@ -105,11 +111,11 @@ def show_block():
     try:
         block_hash = find_block_by_height(search_string)
         block, transactions = get_single_block(block_hash)
-        return render_template('block.html', block = block, transactions = transactions)
+        return render_template('block.html', block=block, transactions=transactions)
     except Exception as e:
         print(e)
         print('Error: Failed to locate block by height.')
         return ('', 204)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=int('8201'), debug=True)
+    app.run(host='0.0.0.0', port=int(app.config['BIND_PORT']), debug=app.config['DEBUG'])
