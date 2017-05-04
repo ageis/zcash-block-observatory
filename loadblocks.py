@@ -4,8 +4,8 @@
 import json
 import subprocess
 import requests
-from config import LoadBlocksConfig
 
+from config import LoadBlocksConfig
 config = LoadBlocksConfig
 
 def zcash(cmd):
