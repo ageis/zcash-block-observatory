@@ -42,11 +42,11 @@ def get_single_block(block_hash):
     block = c.fetchone()
     return dict(block)
 
-def get_blocks():
+def get_blocks(amount=-1):
     conn = sqlite3.connect(db_file)
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    c.execute('SELECT hash, height, size, txs, time FROM blocks ORDER by height DESC LIMIT 200')
+    c.execute('SELECT hash, height, size, txs, time FROM blocks ORDER by height DESC LIMIT ' + (str(amount) if (int(amount) > 0) else str('-1')))
     # return retrieved blocks as a dict
     blocks = [dict(block) for block in c.fetchall()]
     return blocks
@@ -73,8 +73,8 @@ def _jinja2_filter_timestamp(unix_epoch):
 @app.route('/')
 def index():
     try:
-        blocks = get_blocks()
-        # blocks = cache.get('blocks')
+        #blocks = get_blocks(250)
+        blocks = cache.get('blocks')
     except:
         pass
     return render_template('blocks.html', blocks = blocks)
@@ -111,6 +111,6 @@ def show_block():
         return ('', 204)
 
 if __name__ == '__main__':
-    # cache = SimpleCache()
-    # cache.set('blocks', get_blocks(), timeout=3600)
+    cache = SimpleCache()
+    cache.set('blocks', get_blocks(250), timeout=3600)
     app.run(host='0.0.0.0', port=int('8201'), debug=True)
