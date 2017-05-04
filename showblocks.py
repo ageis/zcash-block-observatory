@@ -6,6 +6,9 @@ from flask import Flask, g, abort, jsonify, render_template, request, Response, 
 import config, json, os, re, sqlite3, sys, time
 from werkzeug.contrib.cache import SimpleCache
 
+# debugging
+from pprint import pprint
+
 db_file = 'blocks.sqlite'
 app = Flask(__name__)
 app.config.from_object(config.FlaskConfig)
@@ -54,7 +57,7 @@ def get_blocks(query={}):
     # else:
     #     bottom = height - 20
     #     c.execute('SELECT hash, height, size, time FROM blocks WHERE height<=:top AND height>:bottom ORDER by height DESC', {"top":height, "bottom":bottom})
-    c.execute('SELECT hash, height, size, LENGTH(tx) AS txs, time FROM blocks ORDER by height DESC LIMIT 200')
+    c.execute('SELECT hash, height, size, txs, time FROM blocks ORDER by height DESC LIMIT 200')
     # return retrieved blocks as a dict
     blocks = [dict(block) for block in c.fetchall()]
     return blocks
