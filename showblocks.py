@@ -1,13 +1,9 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-from functools import wraps
-from flask import Flask, g, abort, jsonify, render_template, request, Response, session
+from flask import Flask, render_template, request, session
 import config, json, os, re, sqlite3, sys, time
 from werkzeug.contrib.cache import SimpleCache
-
-# debugging
-from pprint import pprint
 
 db_file = 'blocks.sqlite'
 app = Flask(__name__)
