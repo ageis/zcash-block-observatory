@@ -25,8 +25,8 @@ def find_block_by_tx(txid):
     conn = sqlite3.connect(db_file)
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    #c.execute('SELECT hash FROM tx WHERE tx=:txid', {"txid": txid})
-    c.execute('SELECT hash FROM blocks WHERE instr(tx, :txid)', {"txid": txid})
+    c.execute('SELECT hash FROM tx WHERE tx=:txid', {"txid": txid})
+    #c.execute('SELECT hash FROM blocks WHERE instr(tx, :txid)', {"txid": txid})
     block_hash = c.fetchone()
     return str(block_hash['hash'])
 
@@ -43,8 +43,8 @@ def get_single_block(block_hash):
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
     c.execute('SELECT * FROM blocks WHERE hash=:hash', {"hash": block_hash})
-    block = dict(c.fetchone())
-    return block
+    block = c.fetchone()
+    return dict(block)
 
 def get_blocks():
     conn = sqlite3.connect(db_file)
