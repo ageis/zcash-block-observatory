@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import json, os, requests, subprocess, sys, time
+import json, requests, subprocess
 block_observatory_url = 'http://127.0.0.1:8200/'
 
 def zcash(cmd):
