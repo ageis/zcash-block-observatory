@@ -22,7 +22,8 @@ def find_block_by_tx(txid):
     conn = sqlite3.connect(db_file)
     conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    c.execute('SELECT hash FROM tx WHERE tx=:txid', {"txid": txid})
+    #c.execute('SELECT hash FROM tx WHERE tx=:txid', {"txid": txid})
+    c.execute('SELECT hash FROM blocks WHERE instr(tx, :txid)', {"txid": txid})
     block_hash = c.fetchone()
     return str(block_hash['hash'])
 
@@ -40,12 +41,9 @@ def get_single_block(block_hash):
     c = conn.cursor()
     c.execute('SELECT * FROM blocks WHERE hash=:hash', {"hash": block_hash})
     block = dict(c.fetchone())
-    txs = get_txs(block['hash'])
-    block['tx'] = txs
     return block
 
 def get_blocks(query={}):
-    print "in get blocks"
     if query.get('height'):
         height = query['height']
     conn = sqlite3.connect(db_file)
@@ -56,21 +54,10 @@ def get_blocks(query={}):
     # else:
     #     bottom = height - 20
     #     c.execute('SELECT hash, height, size, time FROM blocks WHERE height<=:top AND height>:bottom ORDER by height DESC', {"top":height, "bottom":bottom})
-    c.execute('SELECT hash, height, size, time FROM blocks ORDER by height DESC LIMIT 200')
-    # return retrieved blocks as a dict, with transactions
+    c.execute('SELECT hash, height, size, LENGTH(tx) AS txs, time FROM blocks ORDER by height DESC LIMIT 200')
+    # return retrieved blocks as a dict
     blocks = [dict(block) for block in c.fetchall()]
-    for block in blocks:
-        txs = get_txs(block['hash'])
-        block['txs'] = txs
     return blocks
-
-def get_txs(block_hash):
-    conn = sqlite3.connect(db_file)
-    conn.row_factory = sqlite3.Row
-    c = conn.cursor()
-    c.execute('SELECT tx FROM tx WHERE hash=:hash', {"hash": block_hash})
-    txs = [dict(tx) for tx in c.fetchall()]
-    return txs
 
 def validate_input(search_string):
     if search_string.isdigit():

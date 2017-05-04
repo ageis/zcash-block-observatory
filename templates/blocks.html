@@ -17,8 +17,7 @@
           <td>{{ block['height'] | int }}</td>
           <td><a href="/block?search={{ block['hash'] }}" style="text-decoration: none;">{{ block['hash'] }}</a></td>
           <td>{{ block['size'] | int }}</td>
-          <td>
-            {{ block['txs']|length }}
+          <td>{{ block['txs'] | int }}
           </td>
           <td>{{ block['time'] | timestamp }}</td>
         </tr>
