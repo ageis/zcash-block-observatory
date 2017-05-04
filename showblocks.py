@@ -65,7 +65,7 @@ def validate_input(search_string):
         return None
     m = re.match(r"[A-Fa-f0-9]{64}", search_string)
     if m and m.span()[1] == len(search_string):
-        print('Search matches the hexademical format of a block hash or txid.')
+        print('Search matches hexademical format of a block hash or txid.')
         return search_string
     else:
         return None
