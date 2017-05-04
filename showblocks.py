@@ -58,11 +58,14 @@ def get_blocks():
 def validate_input(search_string):
     if search_string.isdigit():
         if int(search_string) <= latest_block():
+            print('Search is numeric but not less than the current block height.')
             return search_string
     if len(search_string) != 64:
+        print('Error: Search does not consist of 64 characters.')
         return None
     m = re.match(r"[A-Fa-f0-9]{64}", search_string)
     if m and m.span()[1] == len(search_string):
+        print('Search matches the hexademical format of a block hash or txid.')
         return search_string
     else:
         return None
@@ -108,7 +111,7 @@ def show_block():
         block = get_single_block(block_hash)
         return render_template('block.html', block = block)
     except:
-        print('Error: Failed to locate block by its number.')
+        print('Error: Failed to locate block by height.')
         return ('', 204)
 
 if __name__ == '__main__':
