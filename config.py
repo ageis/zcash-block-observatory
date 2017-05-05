@@ -15,8 +15,8 @@ class ShowBlocksConfig(object):
     SECRET_KEY = 'lQT0EE/XcyZrXDjCCJ/KRs3F2zKc0Ls3KAmT4y0pxp4='
 
 class ReceiveBlocksConfig(object):
-    DB_FILE = 'blocks.sqlite'
     BIND_PORT = 8200
+    DB_FILE = 'blocks.sqlite'
     DEBUG = True
     TESTING = True
 
@@ -27,5 +27,5 @@ class SendBlocksConfig(dict):
 class LoadBlocksConfig(dict):
     BLOCK_OBSERVATORY_URL = 'http://127.0.0.1:8200/'
     ZCASH_CLI_PATH = '/usr/bin/zcash-cli'
-    STARTING_BLOCK_HEIGHT = 0
-    ENDING_BLOCK_HEIGHT = 108353
+    START_BLOCK_HEIGHT = 0
+    END_BLOCK_HEIGHT = 108560

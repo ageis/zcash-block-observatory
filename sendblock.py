@@ -13,8 +13,8 @@ from config import SendBlocksConfig
 config = SendBlocksConfig
 
 def zcash(block_hash):
-    zcash = subprocess.Popen([config.ZCASH_CLI_PATH, 'getblock', block_hash], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
-    output = zcash.communicate()[0]
+    zcexec = subprocess.Popen([config.ZCASH_CLI_PATH, 'getblock', block_hash], stdout=subprocess.PIPE, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
+    output = zcexec.communicate()[0]
     return json.loads(output)
 
 def main():
@@ -26,6 +26,7 @@ def main():
     session.headers.update({'Content-Type': 'application/json'})
     r = session.post(config['BLOCK_OBSERVATORY_URL'], json=block)
     r.raise_for_status()
+    sys.exit(0)
 
 if __name__ == '__main__':
     main()
